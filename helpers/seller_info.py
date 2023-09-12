@@ -1,10 +1,19 @@
-
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as bs
+from typing import Dict, Union, Optional
 
-def seller_information(driver):
+def seller_information(driver) -> Dict[str, Union[str, Dict[str, Union[str, Optional[str]]]]]:
+    """
+    Extract seller information from a seller's profile page.
+
+    Args:
+    - driver: The Selenium WebDriver instance.
+
+    Returns:
+    - Dict[str, Union[str, Dict[str, Union[str, Optional[str]]]]]: A dictionary containing extracted seller information.
+    """
     try:
-        data ={}
+        data = {}
         parent_div = driver.find_element(By.CLASS_NAME, "product-seller-block_sellerBlock__details__50J7I")
 
         # Find the <a> element containing the seller URL
@@ -34,24 +43,26 @@ def seller_information(driver):
         # Extract seller's join date
         seller_join_date = soup.select_one('.profile-infos li:last-child').text.strip().split(' ')[-3:]
         seller_badge = soup.find('span', class_='vc-badge__text')
+        
+        # Extract seller's badge (if available)
         if seller_badge:
             badge_data = seller_badge.text.strip()
         else:
             badge_data = None
-        
-        data['seller_name']=seller_name
-        data['item_sold_by_seller']=seller_total_sold
-        data['seller_description']= {
-            'email':seller_email,
-            'seller_recent_sold':seller_recent_sold,
-            'seller_total_sold':seller_total_sold,
-            'country':seller_country,
-            'join_date':seller_join_date,
+
+        data['seller_name'] = seller_name
+        data['item_sold_by_seller'] = seller_total_sold
+        data['seller_description'] = {
+            'email': seller_email,
+            'seller_recent_sold': seller_recent_sold,
+            'seller_total_sold': seller_total_sold,
+            'country': seller_country,
+            'join_date': seller_join_date,
         }
-        data['seller_type']:badge_data
-        
+        data['seller_type'] = badge_data
+
         return data
 
     except Exception as e:
-        # print(str(e))
+        # Handle exceptions and return an empty dictionary in case of an error
         return {}
